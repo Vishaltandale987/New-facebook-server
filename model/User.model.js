@@ -3,29 +3,28 @@
 const mongoose = require("mongoose")
 
 
-// const commentSchema = mongoose.Schema({
-//   userId:String,
-//   comment:String
-// })
+const messageobjectSchema = mongoose.Schema({
+  mess:String,
+  id:String,
+  reviced:Boolean
+},{
+   timestamps: true 
+})
 
 
-// const postSchema =  mongoose.Schema({
-//     post_image: String,
-//     description: String,
-//     like: Number,
-//     all_comment: [commentSchema]
-    
-// })
+
+
+const chatSchema = mongoose.Schema({
+  userid:String,
+  message:{
+    type: [messageobjectSchema],
+   
+  }
+})
 
 
 const userSchema = mongoose.Schema({
-    // lastName: String,
-    // firstName: String,
-    // password: String,
-    // email: String,
-    // avatar: String,
-    // coverimg: String,
-    // post: [postSchema]
+  
 
     username: {
         type: String,
@@ -71,6 +70,14 @@ const userSchema = mongoose.Schema({
       },
       BlockedTime:{
         type:Number
+      },
+      chat:{
+        // type: [chatSchema],
+        // required: true,
+        type: Array,
+        default: [],
+        
+
       }
     
 

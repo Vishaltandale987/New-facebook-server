@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("./../model/User.model");
-
+const nodemailer = require('nodemailer');
 const userrouter = express.Router();
 
 //all users
@@ -41,8 +41,39 @@ userrouter.post("/register", async (req, res) => {
         } else {
           const user = new User({ username, email, password: hash });
           await user.save();
+
+
+          try {
+            const transporter = nodemailer.createTransport({
+              host: 'smtp.gmail.com',
+              port: 465,
+              secure: true,
+              service: "gmail",
+              auth: {
+                  user: 'bloodsaver.techteam@gmail.com',
+                  pass: 'lwgxszxjhudpevjj'
+              }
+          });
+       
+          let url = "https://facebook-project-eight.vercel.app/"
+          const info = await transporter.sendMail({
+            from: '"Vishal Tandale" <snaphub@gmail.com>', // sender address
+            to: `${email}`, // list of receivers
+            subject: "Welcome", // Subject line
+            text: "Welcome to Snaphub.", // plain text body
+            html: `<b>Welcome to the Snap Hub.</b> <a href=${url} target="_blank">Link: ${url}</a>`, // html body
+          });
+          res.send({ msg: info, status: "Ok" });
+        
+          console.log("Message sent: %s", info.messageId);
+          } catch (error) {
+            res.status(404).send({ Error: error.message, status: "NO" });
+          }
+
           res.send({ message: "New user register" });
         }
+
+
       });
     } catch (error) {
       res.send({ message: "something went wrong" });
@@ -284,6 +315,68 @@ userrouter.get("/search/:username", async (req, res) => {
 });
 
 
+//message 
+
+
+// chat
+
+userrouter.post("/chat/:userid/:senderid", async (req, res) => {
+
+  let data = req.body
+  let userid = req.params.userid
+  let senderid = req.params.senderid
+
+  let sender = await User.findById({ _id: senderid });
+
+
+  let filter = sender.chat.filter(e => e.userid !== userid)
+
+  let update = sender.chat.filter(e => e.userid === userid).map((e)=> {
+    return e.message
+  })
+
+
+
+
+
+  if (filter === []) {
+    const messages = { userid: userid, message: [data] };
+
+    sender.chat.push(messages);
+
+    await sender.save();
+  }else{
+
+
+    const result = await User.updateOne(
+      { 'chat.userid': userid }, 
+      { $push: { 'chat.$.message': data } } 
+    )
+  }
+
+
+});
+
+
+// get chat 
+
+
+userrouter.get("/chat/:id/:userid", async (req, res) => {
+  let senderid = req.params.id
+  let userid = req.params.userid
+  // console.log(senderid)
+  try {
+    let sender = await User.findById({ _id: senderid });
+    
+    let update = sender.chat.filter(e => e.userid === userid).map((e)=> {
+      return e.message
+    })
+
+    res.status(200).json(update);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
 
 
@@ -291,3 +384,5 @@ userrouter.get("/search/:username", async (req, res) => {
 module.exports = {
   userrouter,
 };
+
+

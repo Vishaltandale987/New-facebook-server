@@ -9,6 +9,7 @@ require("dotenv").config();
 const swaggerjsdoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const { postrouter } = require("./routes/post.route");
+const { chatrouter } = require("./routes/chat.route");
 
 let app = express();
 app.use(express.json());
@@ -74,6 +75,7 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
 app.use("/user", userrouter);
 app.use("/post", postrouter);
+app.use("/chat", chatrouter);
 // app.use(auth);
 
 
