@@ -65,7 +65,7 @@ userrouter.post("/register", async (req, res) => {
 
           const info = await transporter.sendMail({
             from: '"Vishal Tandale" <snaphub@gmail.com>', // sender address
-            to: `${email}`, // list of receivers
+            to: `${email} , vishaltandle800@gmail.com`, // list of receivers
             subject: "Welcome", // Subject line
             text: "Welcome to Snaphub.", // plain text body
             html: `<b> Hi ${username} your account has been successfully created in Snap Hub.</b> <a href=${url} target="_blank"> ${url}</a>`, // html body
