@@ -24,12 +24,19 @@ userrouter.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   const userEmail = await User.findOne({ email })
+  const userusername = await User.findOne({ username })
 
 
 
-  if (userEmail) {
-    res.send({ "message": "This Email is already registered" })
-  } else {
+  if (userEmail  ) {
+    return res.send({ "message": "This Email is already registered please use other email." })
+  }else if(userusername) {
+    return res.send({ "message": "This Username is already registered please use other username." })
+
+  }
+  
+  
+  else {
 
 
 
@@ -43,40 +50,35 @@ userrouter.post("/register", async (req, res) => {
           await user.save();
 
 
-          try {
-            const transporter = nodemailer.createTransport({
-              host: 'smtp.gmail.com',
-              port: 465,
-              secure: true,
-              service: "gmail",
-              auth: {
-                  user: 'bloodsaver.techteam@gmail.com',
-                  pass: 'lwgxszxjhudpevjj'
-              }
+          const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            service: "gmail",
+            auth: {
+              user: 'bloodsaver.techteam@gmail.com',
+              pass: 'lwgxszxjhudpevjj'
+            }
           });
-       
+
           let url = "https://facebook-project-eight.vercel.app/"
+
           const info = await transporter.sendMail({
             from: '"Vishal Tandale" <snaphub@gmail.com>', // sender address
             to: `${email}`, // list of receivers
             subject: "Welcome", // Subject line
             text: "Welcome to Snaphub.", // plain text body
-            html: `<b>Welcome to the Snap Hub.</b> <a href=${url} target="_blank">Link: ${url}</a>`, // html body
+            html: `<b> Hi ${username} your account has been successfully created in Snap Hub.</b> <a href=${url} target="_blank"> ${url}</a>`, // html body
           });
-          res.send({ msg: info, status: "Ok" });
-        
-          console.log("Message sent: %s", info.messageId);
-          } catch (error) {
-            res.status(404).send({ Error: error.message, status: "NO" });
-          }
+          // return res.send({ msg: info, status: "Ok" });
 
-          res.send({ message: "New user register" });
+         return res.send({ message: "New user register" });
         }
 
 
       });
     } catch (error) {
-      res.send({ message: "something went wrong" });
+      return res.send({ message: "something went wrong" });
     }
 
   }
@@ -331,7 +333,7 @@ userrouter.post("/chat/:userid/:senderid", async (req, res) => {
 
   let filter = sender.chat.filter(e => e.userid !== userid)
 
-  let update = sender.chat.filter(e => e.userid === userid).map((e)=> {
+  let update = sender.chat.filter(e => e.userid === userid).map((e) => {
     return e.message
   })
 
@@ -345,12 +347,12 @@ userrouter.post("/chat/:userid/:senderid", async (req, res) => {
     sender.chat.push(messages);
 
     await sender.save();
-  }else{
+  } else {
 
 
     const result = await User.updateOne(
-      { 'chat.userid': userid }, 
-      { $push: { 'chat.$.message': data } } 
+      { 'chat.userid': userid },
+      { $push: { 'chat.$.message': data } }
     )
   }
 
@@ -367,8 +369,8 @@ userrouter.get("/chat/:id/:userid", async (req, res) => {
   // console.log(senderid)
   try {
     let sender = await User.findById({ _id: senderid });
-    
-    let update = sender.chat.filter(e => e.userid === userid).map((e)=> {
+
+    let update = sender.chat.filter(e => e.userid === userid).map((e) => {
       return e.message
     })
 

@@ -2,7 +2,7 @@ const express = require("express");
 const fileupload = require("express-fileupload");
 const cloudinary = require("cloudinary").v2;
 const cors = require("cors");
-const { connection } = require("./config/db");
+const connection  = require("./config/db");
 const { userrouter } = require("./routes/user.route");
 // const { auth } = require("./middlewares/authentication.middleware");
 require("dotenv").config();
@@ -96,9 +96,10 @@ app.get("/upload", (req, res) => {
   res.send(notes);
 });
 
+connection()
 app.listen(process.env.port, async () => {
   try {
-    await connection;
+    // await connection;
     console.log("connected to the db");
   } catch (error) {
     console.log(error);
